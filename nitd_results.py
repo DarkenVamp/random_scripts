@@ -1,5 +1,6 @@
 import requests
 import json
+from time import sleep
 
 LOGIN_PAGE = "https://erp.nitdelhi.ac.in/CampusLynxNITD/CounsellingRequest?sid=validate&refor=StudentOnlineDetailService"
 RESULT_PAGE = LOGIN_PAGE.replace("validate", "2002").replace(
@@ -40,4 +41,8 @@ for pre, (batch, strength) in enumerate(batches.items(), 1):
     print(batch, ":\n")
     for i in range(1, strength):
         roll_no = '2012' + str(pre) + '00' + str(i).zfill(2)
-        result(roll_no)
+        try:
+            result(roll_no)
+        except requests.exceptions.ConnectionError:
+            sleep(5)
+            result(roll_no)
