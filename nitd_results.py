@@ -3,8 +3,10 @@ import json
 from time import sleep
 
 LOGIN_PAGE = "https://erp.nitdelhi.ac.in/CampusLynxNITD/CounsellingRequest?sid=validate&refor=StudentOnlineDetailService"
-RESULT_PAGE = LOGIN_PAGE.replace("validate", "2002").replace(
+DETAILS_PAGE = LOGIN_PAGE.replace("validate", "2002").replace(
     "OnlineDetail", "SeatingMaster")
+RESULT_PAGE = DETAILS_PAGE.replace("2002", "2005")
+SUBJECT_PAGE = DETAILS_PAGE.replace("2002", "2003")
 headers = {"Content-Type": "application/x-www-form-urlencoded"}
 
 
@@ -16,15 +18,11 @@ def result(r_no):
                             data=login_data).text
 
     jdata.update(
-        {"sid": "2005", "mname": "ExamSgpaCgpaDetailOfStudent", "studentID": stud_id})
+        {"mname": "ExamSgpaCgpaDetailOfStudent", "studentID": stud_id})
     stud_data = 'jdata=' + json.dumps(jdata)
-    r_stud_info = requests.post(RESULT_PAGE,
-                                headers=headers, data=stud_data)
+    r_stud_info = requests.post(DETAILS_PAGE, headers=headers, data=stud_data)
 
-    r_result = requests.post(RESULT_PAGE.replace('2002', '2005'),
-                             headers=headers, data=stud_data)
-
-    jdata.update({"sid": "2003", "mname": "studentGrade"})
+    r_result = requests.post(RESULT_PAGE, headers=headers, data=stud_data)
 
     if r_result.json():
         print("Roll No:", r_no)
@@ -35,8 +33,8 @@ def result(r_no):
         for sem, res in enumerate(r_result.json(), 1):
             jdata.update({"stynumber": sem})
             sub_data = 'jdata=' + json.dumps(jdata)
-            r_sub_info = requests.post(RESULT_PAGE.replace('2002', '2003'),
-                                       headers=headers, data=sub_data)
+            r_sub_info = requests.post(
+                SUBJECT_PAGE, headers=headers, data=sub_data)
 
             print("Sem", sem, "Results :-")
             for sub in r_sub_info.json():
