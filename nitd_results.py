@@ -24,6 +24,8 @@ def result(r_no):
     r_result = requests.post(RESULT_PAGE.replace('2002', '2005'),
                              headers=headers, data=stud_data)
 
+    jdata.update({"sid": "2003", "mname": "studentGrade"})
+
     if r_result.json():
         print("Roll No:", r_no)
 
@@ -31,9 +33,16 @@ def result(r_no):
         print("Name:", name)
 
         for sem, res in enumerate(r_result.json(), 1):
-            print("Sem", sem, "CGPA:", res['cgpa_r'])
+            jdata.update({"stynumber": sem})
+            sub_data = 'jdata=' + json.dumps(jdata)
+            r_sub_info = requests.post(RESULT_PAGE.replace('2002', '2003'),
+                                       headers=headers, data=sub_data)
 
-        print()
+            print("Sem", sem, "Results :-")
+            for sub in r_sub_info.json():
+                print(sub["subjectcode"], '-', sub['grade'])
+
+            print("CGPA :", res['cgpa_r'], '\n')
 
 
 batches = {"CSE": 57, "ECE": 56, "EEE": 51}
