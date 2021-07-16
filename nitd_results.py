@@ -8,17 +8,16 @@ DETAILS_PAGE = LOGIN_PAGE.replace("validate", "2002").replace(
 RESULT_PAGE = DETAILS_PAGE.replace("2002", "2005")
 SUBJECT_PAGE = DETAILS_PAGE.replace("2002", "2003")
 headers = {"Content-Type": "application/x-www-form-urlencoded"}
+jdata = {"sid": "validate", "instituteID": "NITDINSD1506A0000001"}
 
 
 def result(r_no):
-    jdata = {"sid": "validate",
-             "instituteID": "NITDINSD1506A0000001", "studentrollno": r_no}
+    jdata["studentrollno"] = r_no
     login_data = 'jdata=' + json.dumps(jdata)
-    stud_id = requests.post(LOGIN_PAGE, headers=headers,
-                            data=login_data).text
+    stud_id = requests.post(LOGIN_PAGE, headers=headers, data=login_data).text
 
-    jdata.update(
-        {"mname": "ExamSgpaCgpaDetailOfStudent", "studentID": stud_id})
+    jdata["mname"] = "ExamSgpaCgpaDetailOfStudent"
+    jdata["studentID"] = stud_id
     stud_data = 'jdata=' + json.dumps(jdata)
     r_stud_info = requests.post(DETAILS_PAGE, headers=headers, data=stud_data)
 
@@ -31,7 +30,7 @@ def result(r_no):
         print("Name:", name)
 
         for sem, res in enumerate(r_result.json(), 1):
-            jdata.update({"stynumber": sem})
+            jdata["stynumber"] = sem
             sub_data = 'jdata=' + json.dumps(jdata)
             r_sub_info = requests.post(
                 SUBJECT_PAGE, headers=headers, data=sub_data)
