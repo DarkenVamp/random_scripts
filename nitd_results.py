@@ -2,23 +2,19 @@ import requests
 import json
 from time import sleep
 
-LOGIN_PAGE = "https://erp.nitdelhi.ac.in/CampusLynxNITD/CounsellingRequest?sid=validate&refor=StudentOnlineDetailService"
-DETAILS_PAGE = LOGIN_PAGE.replace("validate", "2002").replace(
-    "OnlineDetail", "SeatingMaster")
+DETAILS_PAGE = "https://erp.nitdelhi.ac.in/CampusLynxNITD/CounsellingRequest?sid=2002&refor=StudentSeatingMasterService"
 RESULT_PAGE = DETAILS_PAGE.replace("2002", "2005")
 SUBJECT_PAGE = DETAILS_PAGE.replace("2002", "2003")
 headers = {"Content-Type": "application/x-www-form-urlencoded"}
-jdata = {"sid": "validate", "instituteID": "NITDINSD1506A0000001"}
+jdata = {"sid": "validate", "instituteID": "NITDINSD1506A0000001",
+         "mname": "ExamSgpaCgpaDetailOfStudent"}
 
 
 def result(r_no):
-    jdata["studentrollno"] = r_no
-    login_data = 'jdata=' + json.dumps(jdata)
-    stud_id = requests.post(LOGIN_PAGE, headers=headers, data=login_data).text
-
-    jdata["mname"] = "ExamSgpaCgpaDetailOfStudent"
-    jdata["studentID"] = stud_id
+    stud_id = int(r_no[-2:]) + 56*('300' in r_no) + 106*('200' in r_no)
+    jdata["studentID"] = 'NITDSTUT2012A0000' + str(stud_id).zfill(3)
     stud_data = 'jdata=' + json.dumps(jdata)
+
     r_stud_info = requests.post(DETAILS_PAGE, headers=headers, data=stud_data)
 
     r_result = requests.post(RESULT_PAGE, headers=headers, data=stud_data)
