@@ -1,13 +1,20 @@
 import requests
 import json
-from time import sleep
 
 DETAILS_PAGE = "https://erp.nitdelhi.ac.in/CampusLynxNITD/CounsellingRequest?sid=2002&refor=StudentSeatingMasterService"
 RESULT_PAGE = DETAILS_PAGE.replace("2002", "2005")
 SUBJECT_PAGE = DETAILS_PAGE.replace("2002", "2003")
-headers = {"Content-Type": "application/x-www-form-urlencoded"}
+HEADER = {"Content-Type": "application/x-www-form-urlencoded"}
 jdata = {"sid": "validate", "instituteID": "NITDINSD1506A0000001",
          "mname": "ExamSgpaCgpaDetailOfStudent"}
+
+
+def response(url, data):
+    while 69:
+        try:
+            return requests.post(url, headers=HEADER, data=data)
+        except requests.exceptions.ConnectionError:
+            continue
 
 
 def result(r_no):
@@ -15,9 +22,9 @@ def result(r_no):
     jdata["studentID"] = 'NITDSTUT2012A0000' + str(stud_id).zfill(3)
     stud_data = 'jdata=' + json.dumps(jdata)
 
-    r_stud_info = requests.post(DETAILS_PAGE, headers=headers, data=stud_data)
+    r_stud_info = response(DETAILS_PAGE, stud_data)
 
-    r_result = requests.post(RESULT_PAGE, headers=headers, data=stud_data)
+    r_result = response(RESULT_PAGE, stud_data)
 
     if r_result.json():
         print("Roll No:", r_no)
@@ -28,8 +35,7 @@ def result(r_no):
         for sem, res in enumerate(r_result.json(), 1):
             jdata["stynumber"] = sem
             sub_data = 'jdata=' + json.dumps(jdata)
-            r_sub_info = requests.post(
-                SUBJECT_PAGE, headers=headers, data=sub_data)
+            r_sub_info = response(SUBJECT_PAGE, sub_data)
 
             print("Sem", sem, "Results :-")
             for sub in r_sub_info.json():
@@ -43,8 +49,4 @@ for pre, (batch, strength) in enumerate(batches.items(), 1):
     print(batch, ":\n")
     for i in range(1, strength):
         roll_no = '2012' + str(pre) + '00' + str(i).zfill(2)
-        try:
-            result(roll_no)
-        except requests.exceptions.ConnectionError:
-            sleep(5)
-            result(roll_no)
+        result(roll_no)
