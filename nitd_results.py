@@ -8,6 +8,7 @@ RESULT_PAGE = DETAILS_PAGE.replace("2002", "2005")
 SUBJECT_PAGE = DETAILS_PAGE.replace("2002", "2003")
 HEADER = {"Content-Type": "application/x-www-form-urlencoded"}
 BATCHES = {"CSE": 57, "ECE": 56, "EEE": 51}
+BLACKLIST = ('201220009', '201220042', '201230007', '201230008', '201230023')
 jdata = {"sid": "validate", "instituteID": "NITDINSD1506A0000001",
          "mname": "ExamSgpaCgpaDetailOfStudent"}
 df = [defaultdict(list), defaultdict(
@@ -28,6 +29,8 @@ def add_to_dict(pre, key, val):
 
 
 def result(r_no, pre):
+    if r_no in BLACKLIST:
+        return
     stud_id = int(r_no[-2:]) + 56*('300' in r_no) + 106*('200' in r_no)
     jdata["studentID"] = 'NITDSTUT2012A0000' + str(stud_id).zfill(3)
     stud_data = 'jdata=' + json.dumps(jdata)
@@ -43,15 +46,14 @@ def result(r_no, pre):
         print("Processing", name)
         add_to_dict(pre, 'Name', name)
 
-        for sem, res in enumerate(r_result.json(), 1):
-            jdata["stynumber"] = sem
-            sub_data = 'jdata=' + json.dumps(jdata)
-            r_sub_info = response(SUBJECT_PAGE, sub_data)
+        jdata["stynumber"] = len(r_result.json())
+        sub_data = 'jdata=' + json.dumps(jdata)
+        r_sub_info = response(SUBJECT_PAGE, sub_data)
 
-            for sub in r_sub_info.json():
-                df[pre][sub["subjectcode"]].append(sub['grade'])
+        for sub in r_sub_info.json():
+            df[pre][sub["subjectcode"]].append(sub['grade'])
 
-        add_to_dict(pre, 'CGPA', res['cgpa_r'])
+        add_to_dict(pre, 'CGPA', r_result.json()[-1]['cgpa_r'])
 
 
 for pre, strength in enumerate(BATCHES.values(), 1):
