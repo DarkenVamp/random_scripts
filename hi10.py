@@ -37,9 +37,9 @@ def old():
 
 
 try:
-    new()
-except AttributeError:
     old()
+except AttributeError:
+    new()
 
 ddl = list(map(lambda x: x.split('s=')[1] + f'?{jtoken=!s}', ddl))
 print(*ddl, sep='\n')
