@@ -7,14 +7,23 @@ from bs4 import BeautifulSoup as Soup
 
 lenk = input("Enter mkvdrama link: ")
 
+q = {'1': '540', '2': '720', '3': '1080'}
+choice = '0'
+while choice not in q:
+    print("Resolutions: ")
+    for x, res in q.items():
+        print(x, ':', res+'p')
+    choice = input("Enter choice: ")
+print()
 
-def getLenks(lnk):
+
+def getLenks(lnk, res_ch):
     soup = Soup(requests.get(lnk).content, 'lxml')
     table = soup.table
     for episodes in table.find_all('tr'):
         ep, res, ddl = episodes.find_all('td')[:3]
         try:
-            index = res.text.split('p').index('720')
+            index = res.text.split('p').index(res_ch)
         except ValueError:
             continue
         jmp = ddl.text.count('|') // res.text.count('p') + 1
@@ -24,4 +33,4 @@ def getLenks(lnk):
         print(ep.text, ':', dl_lnk.text, '-', dl_lnk['href'])
 
 
-getLenks(lenk)
+getLenks(lenk, q[choice])
