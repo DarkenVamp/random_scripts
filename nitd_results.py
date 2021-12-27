@@ -61,7 +61,6 @@ for pre, batch_rolls in enumerate(BATCHES.values(), 1):
     for roll_no in batch_rolls:
         result(str(roll_no), pre)
 
-writer = pd.ExcelWriter('bob.xlsx')
-for pre, sheet in enumerate(['CGPA'] + list(BATCHES)):
-    pd.DataFrame.from_dict(df[pre]).to_excel(writer, sheet, index=None)
-writer.save()
+with pd.ExcelWriter('bob.xlsx') as writer:
+    for pre, sheet in enumerate(['CGPA'] + list(BATCHES)):
+        pd.DataFrame.from_dict(df[pre]).to_excel(writer, sheet, index=None)
