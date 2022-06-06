@@ -10,7 +10,7 @@ HEADER = {"Content-Type": "application/x-www-form-urlencoded"}
 BATCHES = {
     "CSE": sorted((set(range(201210001, 201210057)) | {201220039, 201230021, 201230045}) - {201210017, 201210024, 201210044}),
     "ECE": sorted((set(range(201220001, 201220056)) | {201230039}) - {201220009, 201220039, 201220042}),
-    "EEE": sorted(set(range(201230001, 201230051)) - {201230007, 201230008, 201230021, 201230023, 201230045, 201230039})
+    "EEE": sorted(set(range(201230001, 201230051)) - {201230007, 201230008, 201230021, 201230023, 201230045, 201230039, 201230041})
 }
 jdata = {"sid": "validate", "instituteID": "NITDINSD1506A0000001",
          "mname": "ExamSgpaCgpaDetailOfStudent"}
