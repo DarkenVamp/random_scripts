@@ -52,9 +52,10 @@ def result(r_no, pre):
         r_sub_info = response(SUBJECT_PAGE, sub_data)
 
         for sub in r_sub_info.json():
-            df[pre][sub["subjectcode"]].append(sub['grade'])
+            df[pre][sub["subjectdesc"]].append(sub['grade'])
 
         add_to_dict(pre, 'CGPA', r_result.json()[-1]['cgpa_r'])
+        add_to_dict(pre, 'SGPA', r_result.json()[-1]['sgpa_r'])
 
 
 for pre, batch_rolls in enumerate(BATCHES.values(), 1):
@@ -62,5 +63,5 @@ for pre, batch_rolls in enumerate(BATCHES.values(), 1):
         result(str(roll_no), pre)
 
 with pd.ExcelWriter('bob.xlsx') as writer:
-    for pre, sheet in enumerate(['CGPA'] + list(BATCHES)):
+    for pre, sheet in enumerate(['GPA'] + list(BATCHES)):
         pd.DataFrame.from_dict(df[pre]).to_excel(writer, sheet, index=None)
