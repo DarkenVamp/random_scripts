@@ -18,48 +18,44 @@ class XeniaBuild:
         self.executable = executable
         self.zip_name = self.download_url.split('/')[-1]
 
+    def is_newer_build_available(self) -> bool:
+        print("Checking for newer builds...")
+
+        # fetch timestamp of latest release
+        r = requests.get(self.release_page)
+        soup = Soup(r.content, 'lxml')
+        time = soup.find('relative-time')['datetime']
+        timestamp = parser.isoparse(time).timestamp()
+
+        # check timestamp of existing exe or download if exe is not available
+        try:
+            cur_timestamp = os.path.getmtime(self.executable)
+        except FileNotFoundError:
+            return True
+
+        return timestamp > cur_timestamp
+
+    def download_build(self) -> None:
+        print("Downloading latest build...")
+
+        # write zip contents as binary
+        r = requests.get(self.download_url)
+        with open(self.zip_name, 'wb') as f:
+            f.write(r.content)
+
+    def unzip(self) -> None:
+        print(f"Unzipping {self.zip_name}...")
+
+        # extract all files into current directory and delete zip
+        with ZipFile(self.zip_name, 'r') as zf:
+            zf.extractall('.')
+        os.remove(self.zip_name)
+
 
 BUILD_TYPES = {
     'canary': XeniaBuild(CANARY_URL, CANARY_DOWNLOAD, 'xenia_canary.exe'),
     'master': XeniaBuild(MASTER_URL, MASTER_DOWNLOAD, 'xenia.exe')
 }
-
-
-def is_newer_build_available() -> bool:
-    print("Checking for newer builds...")
-
-    # fetch timestamp of latest release
-    r = requests.get(BUILD.release_page)
-    soup = Soup(r.content, 'lxml')
-    time = soup.find('relative-time')['datetime']
-    timestamp = parser.isoparse(time).timestamp()
-
-    # check timestamp of existing exe or download if exe is not available
-    try:
-        cur_timestamp = os.path.getmtime(BUILD.executable)
-    except FileNotFoundError:
-        return True
-
-    return timestamp > cur_timestamp
-
-
-def download_build() -> None:
-    print("Downloading latest build...")
-
-    # write zip contents as binary
-    r = requests.get(BUILD.download_url)
-    with open(BUILD.zip_name, 'wb') as f:
-        f.write(r.content)
-
-
-def unzip() -> None:
-    print(f"Unzipping {BUILD.zip_name}...")
-
-    # extract all files into current directory and delete zip
-    with ZipFile(BUILD.zip_name, 'r') as zf:
-        zf.extractall('.')
-    os.remove(BUILD.zip_name)
-
 
 if __name__ == '__main__':
     # usage: xenia_updater.py --build {master, canary}
@@ -72,10 +68,10 @@ if __name__ == '__main__':
     )
     args = argparser.parse_args()
 
-    BUILD = BUILD_TYPES.get(vars(args)['build'])
+    xb = BUILD_TYPES.get(vars(args)['build'])
 
-    if is_newer_build_available():
-        download_build()
-        unzip()
+    if xb.is_newer_build_available():
+        xb.download_build()
+        xb.unzip()
     else:
         print("Already up to date...")
