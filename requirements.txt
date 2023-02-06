@@ -2,3 +2,5 @@ requests
 bs4
 pandas
 openpyxl
+python-dateutil
+lxml
