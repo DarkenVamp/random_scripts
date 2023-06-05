@@ -1,22 +1,41 @@
 import requests
 from bs4 import BeautifulSoup as Soup
-import os
+from dotenv import dotenv_values
 
-COOKIE = os.getenv('HI10_COOKIE')
-assert COOKIE, "Set Cookie in 'HI10_COOKIE' environment variable"
+env = dotenv_values()
+USERNAME, PASSWORD = env.get('HI10_USERNAME'), env.get('HI10_PASSWORD')
+assert USERNAME and PASSWORD, "HI10_USERNAME or HI10_PASSWORD not set in .env file"
 
-header = {'Cookie': COOKIE, 'User-Agent': 'Mozilla/5.0'}
+header = {'User-Agent': 'Mozilla/5.0'}
 jtoken = '121308a2bd'
 
-name = input("Enter search query: ").lower()
-r = requests.get('https://hi10anime.com/?s=' + '+'.join(name.split()))
-soup = Soup(r.content, 'lxml')
-post = soup.article.h1.a
-print("Found post with title :", post.text)
-url = post['href']
+
+def login_session() -> requests.Session:
+    data = {
+        'log': USERNAME,
+        'pwd': PASSWORD,
+        'rememberme': "forever"
+    }
+    sess = requests.Session()
+    sess.post('https://hi10anime.com/wp-login.php', headers=header, data=data)
+    return sess
+
+
+def search_post(search_term: str) -> str:
+    r = sess.get('https://hi10anime.com/?s=' + '+'.join(search_term.split()))
+    soup = Soup(r.content, 'lxml')
+    post = soup.article.h1.a
+    print("Found post with title :", post.text)
+    return post['href']
+
+
+sess = login_session()
+
+search_term = input("Enter search query: ").lower()
+url = search_post(search_term)
 
 ddl = []
-r = requests.get(url, headers=header)
+r = sess.get(url, headers=header)
 soup = Soup(r.content, 'lxml')
 
 
