@@ -145,7 +145,7 @@ pub fn convert_to_df(result_info: Vec<(String, Vec<IndexMap<String, String>>)>) 
                 key,
                 &branch_data
                     .iter()
-                    .map(|mp| mp.get(key).unwrap_or(&"".to_string()).to_owned())
+                    .map(|mp| mp.get(key).cloned())
                     .collect::<Vec<_>>(),
             );
 
@@ -158,9 +158,7 @@ pub fn convert_to_df(result_info: Vec<(String, Vec<IndexMap<String, String>>)>) 
     df.insert(0, parse_gpa(&df));
 
     for i in 1..df.len() {
-        df[i] = df[i]
-            .drop_nulls(Some(&[df[i].get_columns()[2].name()]))
-            .unwrap();
+        df[i] = df[i].drop_nulls::<String>(None).unwrap();
     }
 
     df
