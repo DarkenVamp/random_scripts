@@ -37,8 +37,8 @@ fn student_id(r_no: String) -> String {
     format!("{:0width$}", stud_id, width = 3)
 }
 
-pub fn prepare_branch_data() -> HashMap<String, Vec<i32>> {
-    let mut branches: HashMap<String, Vec<i32>> = HashMap::from([
+pub fn prepare_branch_data() -> IndexMap<String, Vec<i32>> {
+    let mut branches: IndexMap<String, Vec<i32>> = IndexMap::from([
         ("CSE".to_string(), (201210001..201210057).collect()),
         ("ECE".to_string(), (201220001..201220056).collect()),
         ("EEE".to_string(), (201230001..201230051).collect()),

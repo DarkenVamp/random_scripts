@@ -20,7 +20,7 @@ async fn main() {
     let branches = prepare_branch_data();
     let mut branch_threads = Vec::with_capacity(3);
 
-    for (branch, rolls) in branches {
+    for (branch, rolls) in branches.clone() {
         let jdata_clone = jdata.clone();
 
         let branch_thread = tokio::spawn(async move {
@@ -50,32 +50,16 @@ async fn main() {
     result_info.sort_unstable_by_key(|b| b.0.to_owned());
     let mut df_vec = convert_to_df(result_info);
 
-    let mut gpa = File::create("gpa.csv").unwrap();
-    let mut cse = File::create("cse.csv").unwrap();
-    let mut ece = File::create("ece.csv").unwrap();
-    let mut eee = File::create("eee.csv").unwrap();
-
-    CsvWriter::new(&mut gpa)
-        .include_header(true)
-        .with_separator(b',')
-        .finish(&mut df_vec[0])
-        .unwrap();
-
-    CsvWriter::new(&mut cse)
-        .include_header(true)
-        .with_separator(b',')
-        .finish(&mut df_vec[1])
-        .unwrap();
-
-    CsvWriter::new(&mut ece)
-        .include_header(true)
-        .with_separator(b',')
-        .finish(&mut df_vec[2])
-        .unwrap();
-
-    CsvWriter::new(&mut eee)
-        .include_header(true)
-        .with_separator(b',')
-        .finish(&mut df_vec[3])
-        .unwrap();
+    for (branch, dataframe) in [String::from("GPA")]
+        .iter()
+        .chain(branches.keys())
+        .zip(df_vec.iter_mut())
+    {
+        let mut file = File::create(format!("{}.csv", branch)).unwrap();
+        CsvWriter::new(&mut file)
+            .include_header(true)
+            .with_separator(b',')
+            .finish(dataframe)
+            .unwrap();
+    }
 }
